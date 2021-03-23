@@ -1,3 +1,10 @@
+Param (
+    $Config = $Null, 
+    $Message = $Null  
+)
+$Message | Out-File file.txt
+$Object = $Message | ConvertFrom-Json 
+
 function Show-Notification {
     [cmdletbinding()]
     Param (
@@ -23,6 +30,8 @@ function Show-Notification {
     $Toast.Group = "PowerShell"
     $Toast.ExpirationTime = [DateTimeOffset]::Now.AddMinutes(1)
 
-    $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier("PowerShell")
+    $Notifier = [Windows.UI.Notifications.ToastNotificationManager]::CreateToastNotifier($Object.ToastName)
     $Notifier.Show($Toast);
 }
+
+Show-Notification -ToastTitle $Object.ToastTitle -ToastText $Object.ToastText

@@ -66,7 +66,7 @@ Try {
                 }
                 
                 If ($Async -eq $True) {
-                    Write-Host "Running async job" ($RecipePath + "\Main.ps1" )
+                    Write-Host "Running async" ($RecipePath + "\Main.ps1" )
                     # Start-Job -FilePath ($RecipePath + "\Main.ps1") -ArgumentList @($Config, $([System.Text.Encoding]::ASCII.GetString($MqttObject.Message))) 
 
                     $AsyncJob = [PowerShell]::Create()
@@ -74,12 +74,12 @@ Try {
                             Param($Object)
                             & $Object.File -Config $Object.Config -Message $Object.Message
                         }).AddArgument(@{File = ($RecipePath + "\Main.ps1"); Config = $Config ; Topic = $TopicRaw; Message = $MessageDecoded; })
-                    $AsyncInvoke = $AsyncJob.BeginInvoke()
+                    $AsyncJob.BeginInvoke()
 
                 }
                 else {
-                    Write-Host "Running sync job" ($RecipePath + "\Main.ps1" )
-                    & ($RecipePath + "\Main.ps1") -Config $Config -Message $([System.Text.Encoding]::ASCII.GetString($MqttObject.Message))
+                    Write-Host "Running sync" ($RecipePath + "\Main.ps1" )
+                    & ($RecipePath + "\Main.ps1") -Config $Config -Topic $TopicRaw -Message $MessageDecoded
                 }
 
                 Write-Host "Completed job of" ($RecipePath + "\Main.ps1")
