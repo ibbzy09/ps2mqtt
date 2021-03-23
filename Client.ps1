@@ -23,7 +23,7 @@ Try {
         Try {
             
             $TopicRaw = $MqttObject.Topic
-            $MessageRaw = $MqttObject.Message
+            $MessageDecoded = ([System.Text.Encoding]::ASCII.GetString($MqttObject.Message))
 
             Write-Host "Got... " $TopicRaw
 
@@ -57,26 +57,29 @@ Try {
                     $Async = $False
                 }
  
-                If ($Capture.Groups.Success -eq $True -and $Parameters.Contains("sync")) {
+                If ($Capture.Groups.Success -eq $True -and $Parameters.Contains("async")) {
                     $Async = $True
                 }
-                elseif ($Capture.Groups.Success -eq $True -and $Parameters.Contains("async")) {
+
+                elseif ($Capture.Groups.Success -eq $True -and $Parameters.Contains("sync")) {
                     $Async = $False
                 }
                 
-                Write-Host "Found script $RecipePath under path"
-
-                $MessagePayload = $([System.Text.Encoding]::ASCII.GetString($MqttObject.Message))
-
-                Write-Host "Running job" ($RecipePath + "\Main.ps1")
-
                 If ($Async -eq $True) {
-                    Write-Host "Running job as async"
-                    Start-Job -FilePath ($RecipePath + "\Main.ps1") -ArgumentList @($Config, $MessagePayload)
+                    Write-Host "Running async job" ($RecipePath + "\Main.ps1" )
+                    # Start-Job -FilePath ($RecipePath + "\Main.ps1") -ArgumentList @($Config, $([System.Text.Encoding]::ASCII.GetString($MqttObject.Message))) 
+
+                    $AsyncJob = [PowerShell]::Create()
+                    $null = $AsyncJob.AddScript( {
+                            Param($Object)
+                            & $Object.File -Config $Object.Config -Message $Object.Message
+                        }).AddArgument(@{File = ($RecipePath + "\Main.ps1"); Config = $Config ; Topic = $TopicRaw; Message = $MessageDecoded; })
+                    $AsyncInvoke = $AsyncJob.BeginInvoke()
+
                 }
                 else {
-                    Write-Host "Running job as sync"
-                    . ($RecipePath + "\Main.ps1") -Config $Config -Message $MessagePayload
+                    Write-Host "Running sync job" ($RecipePath + "\Main.ps1" )
+                    & ($RecipePath + "\Main.ps1") -Config $Config -Message $([System.Text.Encoding]::ASCII.GetString($MqttObject.Message))
                 }
 
                 Write-Host "Completed job of" ($RecipePath + "\Main.ps1")
