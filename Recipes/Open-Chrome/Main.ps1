@@ -1,5 +1,0 @@
-[console]::beep(440,500)
-[console]::beep(440,500)
-[console]::beep(440,500)
-[console]::beep(349,350)
-[console]::beep(523,150)

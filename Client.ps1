@@ -53,17 +53,17 @@ Try {
                 
                 $Async = $True
                 
-                If ($Capture.Groups.Success -eq $True -and $Config.RecipeExecutionType -eq "sync") {
+                If ($Config.RecipeExecutionType -eq "sync") {
                     $Async = $False
                 }
  
-                If ($Capture.Groups.Success -eq $True -and $Config.RecipeExecutionType -eq "sync") {
+                If ($Capture.Groups.Success -eq $True -and $Parameters.Contains("sync")) {
                     $Async = $True
                 }
-                elseif ($Capture.Groups.Success -eq $True -and $Config.RecipeExecutionType -eq "sync") {
+                elseif ($Capture.Groups.Success -eq $True -and $Parameters.Contains("async")) {
                     $Async = $False
                 }
-
+                
                 Write-Host "Found script $RecipePath under path"
 
                 $MessagePayload = $([System.Text.Encoding]::ASCII.GetString($MqttObject.Message))
