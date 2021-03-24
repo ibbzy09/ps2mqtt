@@ -1,3 +1,9 @@
+# You may want to change the root topic to the name of your device, the scema is up to you
+# I designed this PS utility to run on several devices in my home
+# To notify me when someones at the door, turn on my door screen and display a Chrome stream of 
+# the front door camera, and many other things. It's very cool and I want to share it with you.
+# Please enjoy it ! 
+
 @{
     MQTT                    = @{ 
         Server          = 'mqtt'
@@ -10,7 +16,7 @@
         }
         Messages        = @{
             Online  = "online"
-            OFfline = "offline"
+            Offline = "offline"
             Will    = "disconnected"
         }
         WillRetain      = 1

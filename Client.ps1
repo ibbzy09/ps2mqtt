@@ -1,7 +1,5 @@
 Try {
 
-    #Load our configs
-    Write-Host "Loading configuration..."
     $Config = Import-PowerShellDataFile .\Config\Client.psd1
     Write-Host "Configuration loaded"
 
@@ -27,7 +25,7 @@ Try {
 
             Write-Host "Got... " $TopicRaw
 
-            $Pattern = [regex]"\((.*)\)"            
+            $Pattern = [regex]"\((.*)\)"
             $Capture = [regex]::match($TopicRaw, $Pattern)
             
             If ($Capture.Groups.Success -eq $True) {
@@ -96,7 +94,7 @@ Try {
         }
     }
 
-    Get-EventSubscriber -Force | Unregister-Event -Force
+    # Get-EventSubscriber -Force | Unregister-Event -Force
 
     Register-ObjectEvent `
         -inputObject $MqttClient `
