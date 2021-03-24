@@ -3,7 +3,7 @@
 
 Powershell2MQTT (ps2mqtt) is small utility which lets you listen and subscribe to MQTT events and trigger code with MQTT topics. 
 
-This project takes a unique approach to running code allowing very little configuration. Any **Recipe** become your topics. e.g. The recipe under **/Recipe/Open-Chrome/Main.ps1** can be triggered through a message to topic **ps2mqtt/recipe/open-chrome**
+This project takes a unique approach to running code allowing very little configuration. Any **Recipe** become your topics. e.g. The recipe under **/Recipes/Open-Chrome/Main.ps1** can be triggered through a message to topic **ps2mqtt/recipe/open-chrome**
 
 Features: 
 
