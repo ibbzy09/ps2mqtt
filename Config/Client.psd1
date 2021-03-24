@@ -1,6 +1,3 @@
-# This config file does not normally need to be changed.
-# Please read through the short codecase and understand what each variable does
-# Changing this after vmwa has been setup may break something :)
 @{
     MQTT                    = @{ 
         Server          = 'mqtt'
