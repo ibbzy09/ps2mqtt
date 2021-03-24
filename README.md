@@ -1,20 +1,20 @@
 
 # PowerShell2MQTT
 
-Powershell2MQTT (ps2mqtt) is small PowerShell utility that lets you listen and subscribe to MQTT events and trigger workflows AKA "Recipes" with MQTT topics. 
+Powershell2MQTT (ps2mqtt) is small utility which lets you listen and subscribe to MQTT events, trigger workflows AKA "Recipes" with MQTT topics. 
 
-The folders in the Recipes folders become your topics e.g. ps2mqtt/recipe/open-chrome . When any message comes in, the Main.ps1 script under this folder is run.
+The folders in the Recipes directory become your topics! e.g. ps2mqtt/recipe/open-chrome triggers ./Recipe/Open-Chrome/Main.ps1 When any message comes in. 
 
-* Premade useful Recipes I use around my home (Toast, Turn On/Off Screen and Open Chrome)
+* Has some basic Recipes: Windows Toast, Turn On/Off Screen and Open Chrome
 * Uses open source .net MQTT NuGet library
-* Written in PowerShell so easy to read and auditable 
-* MQTT Topics can directly run Recipes 
-* Supports asynchronous and synchronous workflows via parameters (unique to this project)
+* Written in less than 150 lines of PowerShell - easy to read and auditable 
+* MQTT topics directly run Recipes 
+* Asynchronous and synchronous workflows via parameters (unique to this project)
 
-Why:
+## Why
+
 I wrote this utility to service my home, it worked well so I decided to open source and share it.
-There were many scenarios I wanted to achieve and after Googling around I couldn't find much or anyone who had done before, I wanted to show a Windows Toast on my screen after someone pressed my doorbell, turn on a screen and show a live camera feed of visitors and many other Windows automations. So I wrote this over the course of two evenings.
-
+There were many scenarios I wanted to achieve and often after Googling I couldn't find much or anyone who had done before, I wanted to show a Windows Toast on my screen after someone pressed my doorbell, turn on a screen and show a live camera feed of visitors and many other Windows automations. So I wrote this over the course of two evenings.
 
 ## Config
 
