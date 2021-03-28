@@ -1,2 +1,5 @@
 *.dll
 Test.ps1
+Start-XProtect
+Stop-XProtect
+Log.txt

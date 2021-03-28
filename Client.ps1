@@ -1,17 +1,20 @@
 Try {
 
+    Set-Location (Split-Path $script:MyInvocation.MyCommand.Path)
+    
     $Config = Import-PowerShellDataFile .\Config\Client.psd1
     Write-Host "Configuration loaded"
-
     If ($Loaded -ne $True) {
         Add-Type -Path ".\Library\M2Mqtt\M2Mqtt.Net.dll" 
         $Loaded = $True # Line Needed For Development Only
         Write-Host "Assembly loaded..."
     }
-    
-    $MqttClient = [uPLibrary.Networking.M2Mqtt.MqttClient]($Config.MQTT.Server)
-    $MqttClient.Connect([guid]::NewGuid(), $Config.MQTT.Username, $Config.MQTT.Password, $Config.MQTT.WillRetain, $Config.MQTT.WillQoSLevel, 1, $Config.MQTT.Topics.Will, $Config.MQTT.Messages.Will, $Config.MQTT.CleanSession, $Config.MQTT.KeepAlivePeriod )
-    $MqttClient.Publish($Config.MQTT.Topics.Status, [System.Text.Encoding]::UTF8.GetBytes($Config.MQTT.Messages.Online), $Config.MQTT.StatusQoS, $Config.MQTT.StatusRetain)
+
+    $Global:Loop = $True
+    $Global:MqttClient = [uPLibrary.Networking.M2Mqtt.MqttClient]($Config.MQTT.Server)
+    $Global:MqttClient.Connect([guid]::NewGuid(), $Config.MQTT.Username, $Config.MQTT.Password, $Config.MQTT.WillRetain, $Config.MQTT.WillQoSLevel, 1, $Config.MQTT.Topics.Will, $Config.MQTT.Messages.Will, $Config.MQTT.CleanSession, $Config.MQTT.KeepAlivePeriod )
+    $Global:MqttClient.Subscribe($Config.MQTT.Topics.Recipe, 0)
+    $Global:MqttClient.Publish($Config.MQTT.Topics.Status, [System.Text.Encoding]::UTF8.GetBytes($Config.MQTT.Messages.Online), $Config.MQTT.StatusQoS, $Config.MQTT.StatusRetain)
 
     Function Global:MQTTMsgReceived {
         Param(
@@ -68,12 +71,12 @@ Try {
                     $Null = $AsyncJob.AddScript( {
                             Param($Object)
                             & $Object.File -Config $Object.Config -Message $Object.Message
-                        }).AddArgument(@{File = ($RecipePath + "\Main.ps1"); Config = $Config ; Topic = $TopicRaw; Message = $MessageDecoded; })
+                        }).AddArgument(@{File = ($RecipePath + "\Main.ps1"); Config = $Config ; Topic = $TopicRaw; Message = $MessageDecoded; Parameters = $Parameters })
                     $AsyncJob.BeginInvoke()
                 }
                 else {
                     Write-Host "Running sync" ($RecipePath + "\Main.ps1" )
-                    & ($RecipePath + "\Main.ps1") -Config $Config -Topic $TopicRaw -Message $MessageDecoded
+                    & ($RecipePath + "\Main.ps1") -Config $Config -Topic $TopicRaw -Message $MessageDecoded -Parameters $Parameters
                 }
 
                 Write-Host "Completed job of" ($RecipePath + "\Main.ps1")
@@ -89,21 +92,32 @@ Try {
             Write-Host $_
         }
     }
+    Function Global:ConnectionClosed {
+        Param(
+            [parameter(Mandatory = $true)]$ConnectionClose
+        )
 
-    Register-ObjectEvent -inputObject $MqttClient -EventName MqttMsgPublishReceived -Action { MQTTMsgReceived $($args[1]) }
+        Write-Host "Connection was closed..."
+        $Global:Loop = $False
+    }
 
-    $MqttClient.Subscribe($Config.MQTT.Topics.Recipe, 0)
+    Register-ObjectEvent -inputObject $Global:MqttClient -EventName ConnectionClosed -Action { ConnectionClosed $($args[1]) }
+    Register-ObjectEvent -inputObject $Global:MqttClient -EventName MqttMsgPublishReceived -Action { MQTTMsgReceived $($args[1]) }
 
     While ($True) {
         Start-Sleep -Milliseconds $Config.ApplicationLoopInterval
+        If ($Global:Loop -ne $True) {
+            Throw "Exception: Connection was likely lost..."
+        }
     }
-    
+
 }
 Catch {
     Write-Error $_
 }
 Finally {
-    $MqttClient.Disconnect()
+    $Global:MqttClient.Disconnect()
     Write-Host "Disconnecting from server..."
     Get-EventSubscriber -Force | Unregister-Event -Force
+    Exit 1
 }

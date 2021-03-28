@@ -25,9 +25,10 @@
         StatusQoS       = 1
         StatusRetain    = 1
         CleanSession    = 1
-        KeepAlivePeriod = 30
+        KeepAlivePeriod = 10
         ClientDLLPath   = '.\Library\lib\net45\M2Mqtt.Net.dll'
     }
+    ServiceName             = "ps2mqtt"
     RecipesPath             = ".\Recipes"
     ApplicationLoopInterval = 100
     RecipeExecutionType     = "async"
